@@ -66,7 +66,9 @@ async def verify_webhook(
     
     if mode == "subscribe" and token == settings.whatsapp_verify_token:
         logger.info("Webhook verified successfully!")
-        return int(challenge)
+        # Return challenge as plain text (WhatsApp expects this)
+        from fastapi.responses import PlainTextResponse
+        return PlainTextResponse(content=challenge)
     else:
         logger.warning(f"Webhook verification failed. Expected token: {settings.whatsapp_verify_token}")
         raise HTTPException(status_code=403, detail="Verification failed")
