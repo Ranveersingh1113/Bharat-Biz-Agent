@@ -22,7 +22,7 @@ class InventoryService:
         width: Optional[int] = None
     ) -> Optional[Dict[str, Any]]:
         """Find inventory item by variant attributes"""
-        if not self.db:
+        if self.db is None:
             return None
         
         query = {}
