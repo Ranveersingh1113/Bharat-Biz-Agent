@@ -342,6 +342,174 @@ class BharatBizAgentTester:
         else:
             self.log_test("Conversations - GET endpoint", False, str(data))
 
+    def test_bulk_order_parsing(self):
+        """Test bulk order parsing functionality"""
+        print("\n📦 Testing Bulk Order Parsing...")
+        
+        test_orders = [
+            "1000m - 400 red silk, 300 blue cotton",
+            "500 meter chahiye - 200 red silk, 300 blue cotton", 
+            "1000m total: 40% red silk, 30% blue cotton, 30% green polyester"
+        ]
+        
+        for order_text in test_orders:
+            success, data = self.test_api_endpoint('POST', '/test/parse-bulk-order', 
+                                                 data={'text': order_text})
+            
+            if success:
+                if 'parsed' in data and 'formatted' in data:
+                    parsed = data['parsed']
+                    if parsed.get('success') and parsed.get('items'):
+                        self.log_test(f"Bulk Order - Parse '{order_text[:30]}...'", True)
+                    else:
+                        self.log_test(f"Bulk Order - Parse '{order_text[:30]}...'", False, "Failed to parse")
+                else:
+                    self.log_test(f"Bulk Order - Parse '{order_text[:30]}...'", False, "Invalid response structure")
+            else:
+                self.log_test(f"Bulk Order - Parse '{order_text[:30]}...'", False, str(data))
+
+    def test_scheduler_service(self):
+        """Test scheduler service endpoints"""
+        print("\n⏰ Testing Scheduler Service...")
+        
+        # Test scheduler status
+        success, data = self.test_api_endpoint('GET', '/scheduler/status')
+        if success:
+            self.log_test("Scheduler - Status endpoint", True)
+            
+            if 'running' in data and 'jobs' in data:
+                self.log_test("Scheduler - Response structure", True)
+                
+                # Check if 4 jobs are running as expected
+                jobs = data.get('jobs', [])
+                expected_jobs = ['daily_summary', 'low_stock_alerts', 'overdue_reminders', 'weekly_credit_summary']
+                
+                if len(jobs) >= 4:
+                    self.log_test("Scheduler - Has expected jobs (4+)", True)
+                else:
+                    self.log_test("Scheduler - Has expected jobs (4+)", False, f"Only {len(jobs)} jobs found")
+                    
+                # Check if scheduler is running
+                if data.get('running'):
+                    self.log_test("Scheduler - Is running", True)
+                else:
+                    self.log_test("Scheduler - Is running", False, "Scheduler not started")
+            else:
+                self.log_test("Scheduler - Response structure", False, "Missing required fields")
+        else:
+            self.log_test("Scheduler - Status endpoint", False, str(data))
+
+    def test_security_service(self):
+        """Test security pairing functionality"""
+        print("\n🔐 Testing Security Service...")
+        
+        test_phone = "+919876543999"
+        
+        # Test pairing request
+        success_req, req_data = self.test_api_endpoint('POST', '/security/pairing/request', 
+                                                      data={'phone': test_phone})
+        
+        if success_req:
+            self.log_test("Security - Pairing request", True)
+            
+            if 'success' in req_data and req_data.get('success'):
+                self.log_test("Security - Pairing request success", True)
+                
+                # Extract code from message (for testing)
+                message = req_data.get('message', '')
+                import re
+                code_match = re.search(r'Enter this code to pair: (\d{6})', message)
+                
+                if code_match:
+                    code = code_match.group(1)
+                    
+                    # Test pairing verification
+                    success_verify, verify_data = self.test_api_endpoint('POST', '/security/pairing/verify',
+                                                                        data={'phone': test_phone, 'code': code})
+                    
+                    if success_verify and verify_data.get('success'):
+                        self.log_test("Security - Pairing verification", True)
+                    else:
+                        self.log_test("Security - Pairing verification", False, str(verify_data))
+                        
+                    # Test pairing status
+                    success_status, status_data = self.test_api_endpoint('GET', f'/security/pairing/status/{test_phone}')
+                    if success_status:
+                        self.log_test("Security - Pairing status", True)
+                        
+                        if status_data.get('is_paired'):
+                            self.log_test("Security - Device paired status", True)
+                        else:
+                            self.log_test("Security - Device paired status", False, "Device not paired")
+                    else:
+                        self.log_test("Security - Pairing status", False, str(status_data))
+                else:
+                    self.log_test("Security - Extract pairing code", False, "Code not found in response")
+            else:
+                self.log_test("Security - Pairing request success", False, "Request not successful")
+        else:
+            self.log_test("Security - Pairing request", False, str(req_data))
+
+    def test_audit_logs(self):
+        """Test audit logging functionality"""
+        print("\n📋 Testing Audit Logs...")
+        
+        success, data = self.test_api_endpoint('GET', '/audit/logs')
+        if success:
+            self.log_test("Audit - Logs endpoint", True)
+            
+            if 'logs' in data and 'count' in data:
+                self.log_test("Audit - Response structure", True)
+                
+                logs = data.get('logs', [])
+                if len(logs) > 0:
+                    log_entry = logs[0]
+                    required_fields = ['id', 'action', 'entity_type', 'entity_id', 'created_at']
+                    missing_fields = [f for f in required_fields if f not in log_entry]
+                    
+                    if missing_fields:
+                        self.log_test("Audit - Log entry structure", False, f"Missing: {missing_fields}")
+                    else:
+                        self.log_test("Audit - Log entry structure", True)
+                else:
+                    self.log_test("Audit - Has log entries", False, "No audit logs found")
+            else:
+                self.log_test("Audit - Response structure", False, "Missing required fields")
+        else:
+            self.log_test("Audit - Logs endpoint", False, str(data))
+
+    def test_pdf_generation(self):
+        """Test PDF invoice generation"""
+        print("\n📄 Testing PDF Generation...")
+        
+        # First get an existing invoice
+        success_invoices, invoices_data = self.test_api_endpoint('GET', '/invoices')
+        
+        if success_invoices and invoices_data.get('invoices'):
+            invoice_id = invoices_data['invoices'][0]['id']
+            
+            # Test PDF generation
+            try:
+                url = f"{self.api_base}/invoices/{invoice_id}/pdf"
+                response = self.session.get(url, timeout=30)
+                
+                if response.status_code == 200:
+                    content_type = response.headers.get('content-type', '')
+                    
+                    if 'application/pdf' in content_type:
+                        self.log_test("PDF - Generation (PDF format)", True)
+                    elif 'text/html' in content_type:
+                        self.log_test("PDF - Generation (HTML fallback)", True)
+                    else:
+                        self.log_test("PDF - Generation", False, f"Unexpected content type: {content_type}")
+                else:
+                    self.log_test("PDF - Generation", False, f"Status: {response.status_code}")
+                    
+            except Exception as e:
+                self.log_test("PDF - Generation", False, str(e))
+        else:
+            self.log_test("PDF - Generation", False, "No invoices available for testing")
+
     def run_all_tests(self):
         """Run all test suites"""
         print("🚀 Starting Bharat Biz-Agent Backend API Tests...")
