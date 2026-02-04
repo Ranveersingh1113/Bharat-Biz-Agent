@@ -377,10 +377,86 @@ class AgentOrchestrator:
     
     async def handle_bulk_order_intent(self, session: ConversationSession, entities: Dict[str, Any], original_message: str) -> str:
         """Handle bulk order with multiple variants"""
-        # Parse bulk order format: "1000m - 400 red silk, 300 blue cotton, 300 green poly"
-        # This would need more sophisticated parsing
+        # Parse bulk order using the bulk order parser
+        parsed = bulk_order_parser.parse_bulk_order(original_message)
         
-        return "Bulk order processing... Please provide details in format:\n\n*Total Quantity* - *Items*\nExample: 1000m - 400 red silk, 300 blue cotton, 300 green polyester"
+        if not parsed.get('success') or not parsed.get('items'):
+            return """📦 *Bulk Order Format*
+
+Please provide order in this format:
+*Total Quantity* - *Items*
+
+Examples:
+• 1000m - 400 red silk, 300 blue cotton, 300 green poly
+• 500 meter chahiye - 200 laal resham, 300 neela suti
+• 1000m total: 40% red silk, 30% blue cotton, 30% green polyester"""
+        
+        # Check availability for each item
+        availability_issues = []
+        items_for_invoice = []
+        
+        if self.db is not None:
+            for item in parsed['items']:
+                # Find matching inventory item
+                query = {}
+                if item.get('fabric_type'):
+                    query['fabric_type'] = item['fabric_type'].lower()
+                if item.get('color'):
+                    query['color'] = item['color'].lower()
+                
+                inv_item = await self.db.inventory.find_one(query, {"_id": 0})
+                
+                if inv_item:
+                    if inv_item['quantity'] < item.get('quantity', 0):
+                        availability_issues.append({
+                            'item': f"{item.get('color', '')} {item.get('fabric_type', '')}",
+                            'requested': item.get('quantity', 0),
+                            'available': inv_item['quantity']
+                        })
+                    else:
+                        items_for_invoice.append({
+                            'item_id': inv_item['id'],
+                            'name': inv_item['name'],
+                            'fabric_type': item.get('fabric_type', 'cotton'),
+                            'color': item.get('color', 'white'),
+                            'width': item.get('width', inv_item.get('width', 44)),
+                            'quantity': item.get('quantity', 0),
+                            'rate': inv_item['rate_per_unit'],
+                            'gst_rate': inv_item.get('gst_rate', 5.0)
+                        })
+                else:
+                    availability_issues.append({
+                        'item': f"{item.get('color', '')} {item.get('fabric_type', '')}",
+                        'requested': item.get('quantity', 0),
+                        'available': 0,
+                        'not_found': True
+                    })
+        
+        # Format response
+        response = bulk_order_parser.format_parsed_order(parsed)
+        
+        if availability_issues:
+            response += "\n\n⚠️ *Stock Issues:*\n"
+            for issue in availability_issues:
+                if issue.get('not_found'):
+                    response += f"❌ {issue['item']} - Not in inventory\n"
+                else:
+                    response += f"⚠️ {issue['item']} - Need {issue['requested']:.0f}, Available {issue['available']:.0f}\n"
+        
+        # Store parsed order in session for confirmation
+        session.pending_action = {
+            "type": "bulk_order_confirm",
+            "items": items_for_invoice,
+            "parsed": parsed,
+            "availability_issues": availability_issues
+        }
+        
+        if items_for_invoice and not availability_issues:
+            response += "\n\n✅ Sab items available hain! Customer ka naam batayein invoice ke liye."
+        elif items_for_invoice:
+            response += "\n\n⚠️ Kuch items available hain. Proceed karna hai? Customer ka naam batayein."
+        
+        return response
     
     async def handle_low_stock_intent(self, session: ConversationSession) -> str:
         """Handle low stock alert check"""
