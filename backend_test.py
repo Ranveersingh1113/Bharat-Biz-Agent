@@ -413,49 +413,60 @@ class BharatBizAgentTester:
         test_phone = "+919876543999"
         
         # Test pairing request
-        success_req, req_data = self.test_api_endpoint('POST', '/security/pairing/request', 
-                                                      data={'phone': test_phone})
-        
-        if success_req:
-            self.log_test("Security - Pairing request", True)
+        try:
+            url = f"{self.api_base}/security/pairing/request"
+            headers = {'Content-Type': 'application/json'}
+            response = self.session.post(url, headers=headers, json=test_phone)
             
-            if 'success' in req_data and req_data.get('success'):
-                self.log_test("Security - Pairing request success", True)
+            if response.status_code == 200:
+                req_data = response.json()
+                self.log_test("Security - Pairing request", True)
                 
-                # Extract code from message (for testing)
-                message = req_data.get('message', '')
-                import re
-                code_match = re.search(r'Enter this code to pair: (\d{6})', message)
-                
-                if code_match:
-                    code = code_match.group(1)
+                if 'success' in req_data and req_data.get('success'):
+                    self.log_test("Security - Pairing request success", True)
                     
-                    # Test pairing verification
-                    success_verify, verify_data = self.test_api_endpoint('POST', '/security/pairing/verify',
-                                                                        data={'phone': test_phone, 'code': code})
+                    # Extract code from message (for testing)
+                    message = req_data.get('message', '')
+                    import re
+                    code_match = re.search(r'Enter this code to pair: (\d{6})', message)
                     
-                    if success_verify and verify_data.get('success'):
-                        self.log_test("Security - Pairing verification", True)
-                    else:
-                        self.log_test("Security - Pairing verification", False, str(verify_data))
+                    if code_match:
+                        code = code_match.group(1)
                         
-                    # Test pairing status
-                    success_status, status_data = self.test_api_endpoint('GET', f'/security/pairing/status/{test_phone}')
-                    if success_status:
-                        self.log_test("Security - Pairing status", True)
+                        # Test pairing verification - need to send both phone and code as separate JSON values
+                        verify_url = f"{self.api_base}/security/pairing/verify"
+                        verify_response = self.session.post(verify_url, headers=headers, 
+                                                          json={"phone": test_phone, "code": code})
                         
-                        if status_data.get('is_paired'):
-                            self.log_test("Security - Device paired status", True)
+                        if verify_response.status_code == 200:
+                            verify_data = verify_response.json()
+                            if verify_data.get('success'):
+                                self.log_test("Security - Pairing verification", True)
+                            else:
+                                self.log_test("Security - Pairing verification", False, str(verify_data))
                         else:
-                            self.log_test("Security - Device paired status", False, "Device not paired")
+                            self.log_test("Security - Pairing verification", False, f"Status: {verify_response.status_code}")
+                            
+                        # Test pairing status
+                        success_status, status_data = self.test_api_endpoint('GET', f'/security/pairing/status/{test_phone}')
+                        if success_status:
+                            self.log_test("Security - Pairing status", True)
+                            
+                            if status_data.get('is_paired'):
+                                self.log_test("Security - Device paired status", True)
+                            else:
+                                self.log_test("Security - Device paired status", False, "Device not paired")
+                        else:
+                            self.log_test("Security - Pairing status", False, str(status_data))
                     else:
-                        self.log_test("Security - Pairing status", False, str(status_data))
+                        self.log_test("Security - Extract pairing code", False, "Code not found in response")
                 else:
-                    self.log_test("Security - Extract pairing code", False, "Code not found in response")
+                    self.log_test("Security - Pairing request success", False, "Request not successful")
             else:
-                self.log_test("Security - Pairing request success", False, "Request not successful")
-        else:
-            self.log_test("Security - Pairing request", False, str(req_data))
+                self.log_test("Security - Pairing request", False, f"Status: {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("Security - Pairing request", False, str(e))
 
     def test_audit_logs(self):
         """Test audit logging functionality"""
