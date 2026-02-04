@@ -433,10 +433,9 @@ class BharatBizAgentTester:
                     if code_match:
                         code = code_match.group(1)
                         
-                        # Test pairing verification - need to send both phone and code as separate JSON values
-                        verify_url = f"{self.api_base}/security/pairing/verify"
-                        verify_response = self.session.post(verify_url, headers=headers, 
-                                                          json={"phone": test_phone, "code": code})
+                        # Test pairing verification - send as raw JSON values
+                        verify_data = {"phone": test_phone, "code": code}
+                        verify_response = self.session.post(verify_url, headers=headers, json=verify_data)
                         
                         if verify_response.status_code == 200:
                             verify_data = verify_response.json()
