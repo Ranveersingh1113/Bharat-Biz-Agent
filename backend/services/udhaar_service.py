@@ -19,7 +19,7 @@ class UdhaarService:
     
     async def get_customer_credit(self, customer_id: str) -> Dict[str, Any]:
         """Get customer's credit status"""
-        if not self.db:
+        if self.db is None:
             return {"error": "Database not connected"}
         
         customer = await self.db.customers.find_one({"id": customer_id}, {"_id": 0})
@@ -57,7 +57,7 @@ class UdhaarService:
         notes: Optional[str] = None
     ) -> Dict[str, Any]:
         """Add credit (Udhaar) for a customer - may require HITL approval"""
-        if not self.db:
+        if self.db is None:
             return {"success": False, "error": "Database not connected"}
         
         customer = await self.db.customers.find_one({"id": customer_id}, {"_id": 0})
@@ -139,7 +139,7 @@ class UdhaarService:
         notes: Optional[str] = None
     ) -> Dict[str, Any]:
         """Process payment received from customer"""
-        if not self.db:
+        if self.db is None:
             return {"success": False, "error": "Database not connected"}
         
         customer = await self.db.customers.find_one({"id": customer_id}, {"_id": 0})
@@ -202,7 +202,7 @@ class UdhaarService:
     
     async def get_overdue_customers(self) -> List[Dict[str, Any]]:
         """Get list of customers with overdue payments"""
-        if not self.db:
+        if self.db is None:
             return []
         
         overdue_date = datetime.now(timezone.utc) - timedelta(days=self.overdue_days)
@@ -237,7 +237,7 @@ class UdhaarService:
         overdue_amount: float
     ) -> Dict[str, Any]:
         """Create HITL request for sending payment reminder"""
-        if not self.db:
+        if self.db is None:
             return {"success": False, "error": "Database not connected"}
         
         hitl_request = HITLRequest(

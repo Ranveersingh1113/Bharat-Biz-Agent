@@ -234,7 +234,7 @@ class AgentOrchestrator:
         fabric_type = entities.get("fabric_type")
         color = entities.get("color")
         
-        if not self.db:
+        if self.db is None:
             return "Database connected nahi hai."
         
         query = {}
@@ -254,7 +254,7 @@ class AgentOrchestrator:
         """Handle udhaar (credit) check"""
         customer_name = entities.get("customer_name")
         
-        if not self.db:
+        if self.db is None:
             return "Database connected nahi hai."
         
         if customer_name:
@@ -313,7 +313,7 @@ class AgentOrchestrator:
             session.pending_action = {"type": "payment", "customer_name": customer_name, "method": payment_method}
             return f"Customer: {customer_name}\nKitna payment aaya hai?"
         
-        if not self.db:
+        if self.db is None:
             return "Database connected nahi hai."
         
         customer = await self.db.customers.find_one(
@@ -337,7 +337,7 @@ class AgentOrchestrator:
     
     async def handle_reminder_intent(self, session: ConversationSession, entities: Dict[str, Any]) -> str:
         """Handle sending payment reminders with HITL approval"""
-        if not self.db:
+        if self.db is None:
             return "Database connected nahi hai."
         
         overdue_customers = await udhaar_service.get_overdue_customers()
@@ -383,7 +383,7 @@ class AgentOrchestrator:
             session.pending_action = {"type": "add_customer", "step": "need_name"}
             return "Naye customer ka naam batayein."
         
-        if not self.db:
+        if self.db is None:
             return "Database connected nahi hai."
         
         # Check if customer exists

@@ -66,7 +66,7 @@ class InventoryService:
     
     async def get_low_stock_items(self, threshold_multiplier: float = 1.0) -> List[Dict[str, Any]]:
         """Get items below reorder level"""
-        if not self.db:
+        if self.db is None:
             return []
         
         pipeline = [
@@ -90,7 +90,7 @@ class InventoryService:
         operation: str = "subtract"  # "add" or "subtract"
     ) -> Dict[str, Any]:
         """Update stock quantity after sale or restock"""
-        if not self.db:
+        if self.db is None:
             return {"success": False, "error": "Database not connected"}
         
         update_value = quantity_change if operation == "add" else -quantity_change
@@ -115,7 +115,7 @@ class InventoryService:
         reason: str = "cutting_loss"
     ) -> Dict[str, Any]:
         """Record fabric wastage"""
-        if not self.db:
+        if self.db is None:
             return {"success": False, "error": "Database not connected"}
         
         # Update inventory
@@ -136,7 +136,7 @@ class InventoryService:
     
     async def get_inventory_summary(self) -> Dict[str, Any]:
         """Get summary of inventory by fabric type"""
-        if not self.db:
+        if self.db is None:
             return {}
         
         pipeline = [
