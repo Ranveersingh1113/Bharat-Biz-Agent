@@ -528,6 +528,13 @@ class BharatBizAgentTester:
         self.test_whatsapp_webhook()
         self.test_conversations_api()
         
+        # New feature tests
+        self.test_bulk_order_parsing()
+        self.test_scheduler_service()
+        self.test_security_service()
+        self.test_audit_logs()
+        self.test_pdf_generation()
+        
         # Print summary
         print("\n" + "=" * 60)
         print(f"📊 Test Results: {self.tests_passed}/{self.tests_run} passed")
