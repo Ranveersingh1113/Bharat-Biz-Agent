@@ -353,20 +353,27 @@ class BharatBizAgentTester:
         ]
         
         for order_text in test_orders:
-            success, data = self.test_api_endpoint('POST', '/test/parse-bulk-order', 
-                                                 data={'text': order_text})
-            
-            if success:
-                if 'parsed' in data and 'formatted' in data:
-                    parsed = data['parsed']
-                    if parsed.get('success') and parsed.get('items'):
-                        self.log_test(f"Bulk Order - Parse '{order_text[:30]}...'", True)
+            try:
+                # Send as raw string in body
+                url = f"{self.api_base}/test/parse-bulk-order"
+                headers = {'Content-Type': 'application/json'}
+                response = self.session.post(url, headers=headers, json=order_text)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    if 'parsed' in data and 'formatted' in data:
+                        parsed = data['parsed']
+                        if parsed.get('success') and parsed.get('items'):
+                            self.log_test(f"Bulk Order - Parse '{order_text[:30]}...'", True)
+                        else:
+                            self.log_test(f"Bulk Order - Parse '{order_text[:30]}...'", False, "Failed to parse")
                     else:
-                        self.log_test(f"Bulk Order - Parse '{order_text[:30]}...'", False, "Failed to parse")
+                        self.log_test(f"Bulk Order - Parse '{order_text[:30]}...'", False, "Invalid response structure")
                 else:
-                    self.log_test(f"Bulk Order - Parse '{order_text[:30]}...'", False, "Invalid response structure")
-            else:
-                self.log_test(f"Bulk Order - Parse '{order_text[:30]}...'", False, str(data))
+                    self.log_test(f"Bulk Order - Parse '{order_text[:30]}...'", False, f"Status: {response.status_code}")
+                    
+            except Exception as e:
+                self.log_test(f"Bulk Order - Parse '{order_text[:30]}...'", False, str(e))
 
     def test_scheduler_service(self):
         """Test scheduler service endpoints"""
