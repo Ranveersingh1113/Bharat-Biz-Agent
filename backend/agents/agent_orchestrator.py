@@ -24,6 +24,7 @@ class AgentOrchestrator:
         self.db = db
         inventory_service.set_db(db)
         udhaar_service.set_db(db)
+        audit_logger.set_db(db)
     
     async def get_or_create_session(self, whatsapp_id: str) -> ConversationSession:
         """Get existing session or create new one"""
