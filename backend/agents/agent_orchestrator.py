@@ -222,6 +222,15 @@ class AgentOrchestrator:
         # Save invoice
         if self.db is not None:
             await self.db.invoices.insert_one(invoice.model_dump())
+            
+            # Audit log
+            await audit_logger.log_action(
+                action="invoice_created",
+                entity_type="invoice",
+                entity_id=invoice.id,
+                user_id=session.whatsapp_id,
+                details={"amount": invoice.grand_total, "customer": customer_name}
+            )
         
         # Update inventory
         if inventory_item and quantity:
