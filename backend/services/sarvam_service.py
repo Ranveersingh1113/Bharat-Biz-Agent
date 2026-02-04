@@ -164,6 +164,13 @@ Respond in JSON format only:
         """Fallback regex-based intent classification for Hinglish"""
         text_lower = text.lower()
         
+        # Bulk order keywords (check first as it's more specific)
+        bulk_keywords = ["meter chahiye", "mtr chahiye", "m chahiye", "bulk order", "total order", "1000m", "500m", "100m"]
+        # Also check for pattern like "Xm - Y red silk, Z blue cotton"
+        bulk_pattern = r'\d+\s*(?:meter|mtr|m)\s*(?:chahiye|total|ka order)?\s*[-:]\s*\d+'
+        if any(kw in text_lower for kw in bulk_keywords) or re.search(bulk_pattern, text_lower):
+            return {"success": True, "intent": "bulk_order", "entities": self._extract_entities(text), "confidence": 0.8}
+        
         # Invoice keywords
         invoice_keywords = ["invoice", "bill", "bhejo", "banao", "invoice banao", "bill de", "raseed"]
         if any(kw in text_lower for kw in invoice_keywords):
