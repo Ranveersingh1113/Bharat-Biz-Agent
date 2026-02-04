@@ -280,9 +280,12 @@ class BharatBizAgentTester:
         
         test_messages = [
             "Ramesh ko bill bhejo",
-            "stock check karo",
+            "stock check karo", 
             "udhaar batao",
-            "payment aaya 5000 ka"
+            "payment aaya 5000 ka",
+            "500 meter chahiye - 200 red silk, 300 blue cotton",  # Bulk order intent
+            "Ramesh ko 5000 ka bill bhejo",  # Invoice generation
+            "red silk ka stock"  # Inventory check
         ]
         
         for message in test_messages:
