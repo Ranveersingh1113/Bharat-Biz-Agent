@@ -301,9 +301,17 @@ class BharatBizAgentTester:
                 self.log_test(f"Agent - Process '{message}'", False, str(data))
                 
         # Test intent classification
-        success_intent, intent_data = self.test_api_endpoint('POST', '/test/classify-intent', 
-                                                           data={'text': 'Ramesh ko invoice bhejo'})
-        self.log_test("Agent - Intent classification", success_intent)
+        try:
+            url = f"{self.api_base}/test/classify-intent"
+            headers = {'Content-Type': 'application/json'}
+            response = self.session.post(url, headers=headers, json="Ramesh ko invoice bhejo")
+            
+            if response.status_code == 200:
+                self.log_test("Agent - Intent classification", True)
+            else:
+                self.log_test("Agent - Intent classification", False, f"Status: {response.status_code}")
+        except Exception as e:
+            self.log_test("Agent - Intent classification", False, str(e))
 
     def test_whatsapp_webhook(self):
         """Test WhatsApp webhook verification"""
