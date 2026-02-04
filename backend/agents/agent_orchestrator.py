@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from datetime import datetime, timezone
 from models import IntentType, MessageType, ConversationSession, PaymentMethod
 from services.sarvam_service import sarvam_service
@@ -7,6 +7,8 @@ from services.whatsapp_service import whatsapp_service
 from services.invoice_service import invoice_service
 from services.inventory_service import inventory_service
 from services.udhaar_service import udhaar_service
+from services.bulk_order_service import bulk_order_parser
+from services.security_service import security_manager, audit_logger
 import uuid
 
 logger = logging.getLogger(__name__)
