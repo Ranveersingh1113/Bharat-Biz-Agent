@@ -370,6 +370,36 @@ async def get_invoice_html(invoice_id: str):
     html = invoice_service.generate_invoice_html(invoice)
     return HTMLResponse(content=html)
 
+@api_router.get("/invoices/{invoice_id}/pdf")
+async def get_invoice_pdf(invoice_id: str):
+    """Get invoice as PDF"""
+    invoice_data = await db.invoices.find_one({"id": invoice_id}, {"_id": 0})
+    if not invoice_data:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+    
+    from models import Invoice, InvoiceLineItem
+    
+    # Reconstruct Invoice object
+    line_items = [InvoiceLineItem(**item) for item in invoice_data.get("items", [])]
+    invoice_data["items"] = line_items
+    invoice = Invoice(**invoice_data)
+    
+    html = invoice_service.generate_invoice_html(invoice)
+    
+    # Generate PDF
+    filename = f"invoice_{invoice.invoice_number.replace('/', '_')}.pdf"
+    pdf_path = pdf_generator.generate_pdf(html, filename)
+    
+    if pdf_path and os.path.exists(pdf_path):
+        return FileResponse(
+            pdf_path,
+            media_type="application/pdf",
+            filename=filename
+        )
+    else:
+        # Fallback to HTML
+        return HTMLResponse(content=html)
+
 # ==================== UDHAAR ROUTES ====================
 
 @api_router.get("/udhaar/overdue")
