@@ -31,7 +31,7 @@ class AgentOrchestrator:
             return session
         
         # Check database for existing session
-        if self.db:
+        if self.db is not None:
             existing = await self.db.sessions.find_one({"whatsapp_id": whatsapp_id}, {"_id": 0})
             if existing:
                 session = ConversationSession(**existing)
@@ -42,7 +42,7 @@ class AgentOrchestrator:
         session = ConversationSession(whatsapp_id=whatsapp_id)
         self.sessions[whatsapp_id] = session
         
-        if self.db:
+        if self.db is not None:
             await self.db.sessions.insert_one(session.model_dump())
         
         return session
@@ -102,7 +102,7 @@ class AgentOrchestrator:
         response = await self.route_to_agent(session, intent, entities, content)
         
         # Save session
-        if self.db:
+        if self.db is not None:
             await self.db.sessions.update_one(
                 {"whatsapp_id": whatsapp_id},
                 {"$set": session.model_dump()},
@@ -160,7 +160,7 @@ class AgentOrchestrator:
         
         # Find or create customer
         customer = None
-        if self.db:
+        if self.db is not None:
             customer = await self.db.customers.find_one(
                 {"name": {"$regex": customer_name, "$options": "i"}},
                 {"_id": 0}
@@ -174,12 +174,12 @@ class AgentOrchestrator:
                 "phone": session.whatsapp_id,
                 "total_credit": 0
             }
-            if self.db:
+            if self.db is not None:
                 await self.db.customers.insert_one(customer)
         
         # Check inventory and get rate
         inventory_item = None
-        if self.db:
+        if self.db is not None:
             query = {}
             if fabric_type:
                 query["fabric_type"] = fabric_type.lower()
@@ -217,7 +217,7 @@ class AgentOrchestrator:
         )
         
         # Save invoice
-        if self.db:
+        if self.db is not None:
             await self.db.invoices.insert_one(invoice.model_dump())
         
         # Update inventory
@@ -443,7 +443,7 @@ If the user asks something unrelated, politely guide them to business features."
         if button_payload.startswith("approve_"):
             request_id = button_payload.replace("approve_", "")
             # Process approval
-            if self.db:
+            if self.db is not None:
                 await self.db.hitl_requests.update_one(
                     {"id": request_id},
                     {"$set": {"status": "approved", "responded_at": datetime.now(timezone.utc).isoformat()}}
@@ -452,7 +452,7 @@ If the user asks something unrelated, politely guide them to business features."
         
         elif button_payload.startswith("reject_"):
             request_id = button_payload.replace("reject_", "")
-            if self.db:
+            if self.db is not None:
                 await self.db.hitl_requests.update_one(
                     {"id": request_id},
                     {"$set": {"status": "rejected", "responded_at": datetime.now(timezone.utc).isoformat()}}
