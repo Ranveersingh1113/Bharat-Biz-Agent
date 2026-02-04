@@ -567,6 +567,70 @@ async def test_classify_intent(text: str = Body(...)):
     result = await sarvam_service.classify_intent(text)
     return result
 
+@api_router.post("/test/parse-bulk-order")
+async def test_parse_bulk_order(text: str = Body(...)):
+    """Test bulk order parsing"""
+    result = bulk_order_parser.parse_bulk_order(text)
+    formatted = bulk_order_parser.format_parsed_order(result)
+    return {"parsed": result, "formatted": formatted}
+
+# ==================== SCHEDULER ENDPOINTS ====================
+
+@api_router.post("/scheduler/trigger/{alert_type}")
+async def trigger_alert(alert_type: str):
+    """Manually trigger a scheduled alert (for testing)"""
+    result = await alert_scheduler.trigger_manual_alert(alert_type)
+    return {"success": True, "message": result}
+
+@api_router.get("/scheduler/status")
+async def get_scheduler_status():
+    """Get scheduler status"""
+    jobs = []
+    for job in alert_scheduler.scheduler.get_jobs():
+        jobs.append({
+            "id": job.id,
+            "name": job.name,
+            "next_run": str(job.next_run_time) if job.next_run_time else None
+        })
+    return {"running": alert_scheduler._started, "jobs": jobs}
+
+# ==================== SECURITY ENDPOINTS ====================
+
+@api_router.post("/security/pairing/request")
+async def request_pairing_code(phone: str = Body(...)):
+    """Request a pairing code for device verification"""
+    code = security_manager.generate_pairing_code(phone)
+    # In production, this would be sent via SMS or shown in dashboard
+    return {
+        "success": True,
+        "message": f"Pairing code generated. Enter this code to pair: {code}",
+        "expires_in_minutes": 10
+    }
+
+@api_router.post("/security/pairing/verify")
+async def verify_pairing(phone: str = Body(...), code: str = Body(...)):
+    """Verify pairing code"""
+    success, message = security_manager.verify_pairing_code(phone, code)
+    return {"success": success, "message": message}
+
+@api_router.get("/security/pairing/status/{phone}")
+async def get_pairing_status(phone: str):
+    """Get pairing status for a phone number"""
+    return security_manager.get_pairing_status(phone)
+
+# ==================== AUDIT ENDPOINTS ====================
+
+@api_router.get("/audit/logs")
+async def get_audit_logs(
+    entity_type: Optional[str] = None,
+    entity_id: Optional[str] = None,
+    action: Optional[str] = None,
+    limit: int = 100
+):
+    """Get audit trail"""
+    logs = await audit_logger.get_audit_trail(entity_type, entity_id, action, limit)
+    return {"logs": logs, "count": len(logs)}
+
 # ==================== APP SETUP ====================
 
 # Include routers
