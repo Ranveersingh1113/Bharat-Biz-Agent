@@ -654,6 +654,11 @@ async def startup_event():
     agent_orchestrator.set_db(db)
     inventory_service.set_db(db)
     udhaar_service.set_db(db)
+    audit_logger.set_db(db)
+    
+    # Configure and start scheduler
+    alert_scheduler.configure(db, whatsapp_service, settings.business_phone)
+    alert_scheduler.start()
     
     # Create indexes
     await db.customers.create_index("id", unique=True)
@@ -669,6 +674,8 @@ async def startup_event():
     await db.sessions.create_index("whatsapp_id", unique=True)
     await db.hitl_requests.create_index("id", unique=True)
     await db.hitl_requests.create_index("status")
+    await db.audit_logs.create_index("created_at")
+    await db.audit_logs.create_index([("entity_type", 1), ("entity_id", 1)])
     
     # Seed sample data if empty
     await seed_sample_data()
