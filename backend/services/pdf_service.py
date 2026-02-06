@@ -8,9 +8,9 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-# Create invoices directory
-INVOICE_DIR = Path("/app/backend/invoices")
-INVOICE_DIR.mkdir(exist_ok=True)
+# Create invoices directory - use /tmp for serverless or relative path
+INVOICE_DIR = Path(os.environ.get('INVOICE_DIR', '/tmp/invoices'))
+INVOICE_DIR.mkdir(parents=True, exist_ok=True)
 
 class PDFGenerator:
     """Generate PDF invoices using WeasyPrint"""
