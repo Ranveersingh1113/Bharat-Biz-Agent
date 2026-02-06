@@ -28,9 +28,10 @@ AI-powered WhatsApp-native business assistant for Indian SMBs in textile retail 
 
 1. A [Vercel](https://vercel.com) account
 2. [Vercel CLI](https://vercel.com/docs/cli) installed: `npm i -g vercel`
-3. MongoDB database (MongoDB Atlas recommended)
-4. WhatsApp Business API credentials
-5. Sarvam AI API key
+3. MongoDB database ([MongoDB Atlas](https://www.mongodb.com/cloud/atlas) recommended - Free tier available)
+   - **Important**: Configure Network Access to allow connections from anywhere (0.0.0.0/0) for Vercel serverless functions
+4. WhatsApp Business API credentials from [Meta for Developers](https://developers.facebook.com/)
+5. Sarvam AI API key from [Sarvam.ai](https://www.sarvam.ai/)
 
 ### Step 1: Install Vercel CLI
 
@@ -82,7 +83,7 @@ After deployment, set environment variables in Vercel Dashboard:
    - `WHATSAPP_ACCESS_TOKEN`
    - `WHATSAPP_PHONE_NUMBER_ID`
    - `WHATSAPP_BUSINESS_ACCOUNT_ID`
-   - `WHATSAPP_VERIFY_TOKEN` (must be `bharat_biz_verify_2026_secure`)
+   - `WHATSAPP_VERIFY_TOKEN` ⚠️ **CRITICAL**: Must be `bharat_biz_verify_2026_secure`
    - `WHATSAPP_API_VERSION`
    - `BUSINESS_NAME`
    - `BUSINESS_ADDRESS`
