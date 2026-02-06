@@ -22,6 +22,22 @@ AI-powered WhatsApp-native business assistant for Indian SMBs in textile retail 
 - **STT**: Sarvam Saarika v2.5
 - **Messaging**: WhatsApp Cloud API
 
+## 🚀 Quick Start - Deploy to Vercel
+
+This application is configured for easy deployment to Vercel to enable Meta WhatsApp webhook verification.
+
+📖 **See [DEPLOYMENT.md](DEPLOYMENT.md) for complete deployment guide**
+
+### Quick Deployment Steps
+
+1. **Install Vercel CLI**: `npm i -g vercel`
+2. **Deploy**: `vercel`
+3. **Configure environment variables** in Vercel Dashboard
+4. **Set Meta webhook** to your Vercel URL: `https://your-app.vercel.app/api/webhook`
+5. **Verify token**: `bharat_biz_verify_2026_secure`
+
+For detailed instructions, troubleshooting, and environment variable setup, see **[DEPLOYMENT.md](DEPLOYMENT.md)**.
+
 ## Deployment to Vercel
 
 ### Prerequisites
