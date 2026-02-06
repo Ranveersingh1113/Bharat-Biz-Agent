@@ -4,6 +4,8 @@ AI-powered WhatsApp-native business assistant for Indian SMBs in the textile ret
 
 > 📚 **New to setup?** Check the [Documentation Index (DOCS_INDEX.md)](DOCS_INDEX.md) for a guide to all available documentation, or jump straight to the [Quick Start Guide (QUICKSTART.md)](QUICKSTART.md) for a 30-minute setup!
 
+> ⚠️ **Webhook URL being rejected by Meta?** → See [WEBHOOK_URL_FIX.md](WEBHOOK_URL_FIX.md) for the complete solution!
+
 ## Features
 
 - 📱 **WhatsApp-Native**: Full WhatsApp Cloud API integration for messaging

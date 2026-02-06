@@ -74,14 +74,16 @@ def test_url_format(url):
         else:
             print_success(f"Path: {parsed.path} ✓")
         
-        # Check for common issues
-        if parsed.netloc == 'localhost' or parsed.netloc.startswith('127.0.0.1'):
+        # Check for common issues - extract hostname without port
+        hostname = parsed.netloc.split(':')[0] if ':' in parsed.netloc else parsed.netloc
+        
+        if hostname == 'localhost' or hostname.startswith('127.0.0.'):
             print_error("Cannot use localhost! Meta cannot reach localhost.")
             print_info("You need a public URL. Use ngrok for testing:")
             print_info("  ngrok http 8000")
             return False
         
-        if parsed.netloc.startswith('192.168.') or parsed.netloc.startswith('10.'):
+        if hostname.startswith('192.168.') or hostname.startswith('10.'):
             print_error("Cannot use private IP addresses!")
             print_info("You need a public URL. Use ngrok for testing.")
             return False
