@@ -2,6 +2,8 @@
 
 AI-powered WhatsApp-native business assistant for Indian SMBs in the textile retail sector. Supports Hinglish (Hindi + English) voice and text commands.
 
+> 📚 **New to setup?** Check the [Documentation Index (DOCS_INDEX.md)](DOCS_INDEX.md) for a guide to all available documentation, or jump straight to the [Quick Start Guide (QUICKSTART.md)](QUICKSTART.md) for a 30-minute setup!
+
 ## Features
 
 - 📱 **WhatsApp-Native**: Full WhatsApp Cloud API integration for messaging
