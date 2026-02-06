@@ -1,0 +1,30 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "backend/server.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "backend/server.py"
+    }
+  ],
+  "env": {
+    "MONGO_URL": "@mongo_url",
+    "DB_NAME": "@db_name",
+    "SARVAM_API_KEY": "@sarvam_api_key",
+    "WHATSAPP_ACCESS_TOKEN": "@whatsapp_access_token",
+    "WHATSAPP_PHONE_NUMBER_ID": "@whatsapp_phone_number_id",
+    "WHATSAPP_BUSINESS_ACCOUNT_ID": "@whatsapp_business_account_id",
+    "WHATSAPP_VERIFY_TOKEN": "@whatsapp_verify_token",
+    "WHATSAPP_API_VERSION": "@whatsapp_api_version",
+    "BUSINESS_NAME": "@business_name",
+    "BUSINESS_ADDRESS": "@business_address",
+    "BUSINESS_PHONE": "@business_phone",
+    "GST_NUMBER": "@gst_number",
+    "BUSINESS_STATE_CODE": "@business_state_code"
+  }
+}
