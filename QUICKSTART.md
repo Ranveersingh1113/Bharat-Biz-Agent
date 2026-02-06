@@ -105,6 +105,21 @@ ngrok http 8000
 # Your webhook URL is: https://yourdomain.com/api/webhook
 ```
 
+**⚡ IMPORTANT: Test Your Webhook First!**
+
+Before entering the URL in Meta, test it:
+```bash
+cd backend
+python test_webhook.py https://your-url.com/api/webhook your_verify_token
+
+# Example with ngrok:
+python test_webhook.py https://abc123.ngrok.io/api/webhook bharat_biz_verify_2026_secure
+
+# If all tests pass ✅, proceed to Meta!
+```
+
+💡 **Having "URL not valid" errors?** See [WEBHOOK_URL_FIX.md](WEBHOOK_URL_FIX.md)
+
 **Configure in Meta**:
 1. Meta App Dashboard → WhatsApp → Configuration
 2. Click "Configure Webhooks"

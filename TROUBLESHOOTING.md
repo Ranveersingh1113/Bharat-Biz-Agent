@@ -2,6 +2,22 @@
 
 This guide provides step-by-step troubleshooting for common WhatsApp configuration issues.
 
+## ⚡ MOST COMMON ISSUE: "URL Not Valid" Error
+
+**If Meta is rejecting your webhook URL**, see the dedicated guide:
+👉 **[WEBHOOK_URL_FIX.md](WEBHOOK_URL_FIX.md)** - Complete solution for URL validation errors
+
+**Quick Fix:**
+```bash
+# Test your webhook BEFORE entering in Meta:
+cd backend
+python test_webhook.py https://your-url.com/api/webhook your_verify_token
+
+# If all tests pass, your URL will work in Meta!
+```
+
+---
+
 ## Quick Diagnostic Tool
 
 Run this diagnostic before troubleshooting:

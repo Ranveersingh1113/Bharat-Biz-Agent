@@ -27,13 +27,19 @@ Complete guide to configuring and using the Bharat Biz-Agent WhatsApp business a
    - Testing webhook setup
    - **Use when**: Need quick webhook config help
 
-4. **[SETUP_CHECKLIST.md](SETUP_CHECKLIST.md)** ✅
+4. **[WEBHOOK_URL_FIX.md](WEBHOOK_URL_FIX.md)** ⚠️ **NEW!**
+   - **Fixes "URL not valid" error in Meta**
+   - Step-by-step debugging for URL validation failures
+   - Includes webhook testing tool
+   - **Use when**: Meta rejects your webhook URL
+
+5. **[SETUP_CHECKLIST.md](SETUP_CHECKLIST.md)** ✅
    - Interactive step-by-step checklist
    - Track your progress through setup
    - All phases covered with checkboxes
    - **Use when**: You want to track setup progress
 
-5. **[backend/.env.example](backend/.env.example)** ⚙️
+6. **[backend/.env.example](backend/.env.example)** ⚙️
    - Environment variable template
    - All required configuration options
    - Detailed comments for each variable
@@ -41,7 +47,7 @@ Complete guide to configuring and using the Bharat Biz-Agent WhatsApp business a
 
 ## 🔧 Troubleshooting & Support
 
-6. **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** 🔍
+7. **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** 🔍
    - Common issues and solutions
    - Diagnostic flowcharts
    - Step-by-step problem resolution
@@ -50,14 +56,14 @@ Complete guide to configuring and using the Bharat Biz-Agent WhatsApp business a
 
 ## 📘 General Documentation
 
-7. **[README.md](README.md)** 📄
+8. **[README.md](README.md)** 📄
    - Project overview
    - Feature highlights
    - Architecture overview
    - Installation instructions
    - **Use when**: Learning about the project
 
-8. **[memory/PRD.md](memory/PRD.md)** 📋
+9. **[memory/PRD.md](memory/PRD.md)** 📋
    - Product requirements document
    - Feature specifications
    - Implementation status
@@ -65,6 +71,12 @@ Complete guide to configuring and using the Bharat Biz-Agent WhatsApp business a
    - **Use when**: Understanding product features
 
 ## 📊 Documentation by Use Case
+
+### ⚠️ "Meta says my webhook URL is not valid" (MOST COMMON!)
+→ **START HERE:**
+1. **[WEBHOOK_URL_FIX.md](WEBHOOK_URL_FIX.md)** - Complete solution ⭐
+2. Run: `python backend/test_webhook.py <url> <token>` - Test before Meta
+3. [TROUBLESHOOTING.md](TROUBLESHOOTING.md) - Additional help
 
 ### "I want to set up WhatsApp for the first time"
 → Follow this order:
@@ -74,8 +86,9 @@ Complete guide to configuring and using the Bharat Biz-Agent WhatsApp business a
 
 ### "I'm having issues with webhook verification"
 → Go to:
-1. [WEBHOOK_QUICK_REF.md](WEBHOOK_QUICK_REF.md) - Quick reference
-2. [TROUBLESHOOTING.md](TROUBLESHOOTING.md) - Issue #1: Cannot Verify Webhook
+1. [WEBHOOK_URL_FIX.md](WEBHOOK_URL_FIX.md) - URL validation issues ⭐
+2. [WEBHOOK_QUICK_REF.md](WEBHOOK_QUICK_REF.md) - Quick reference
+3. [TROUBLESHOOTING.md](TROUBLESHOOTING.md) - Issue #1: Cannot Verify Webhook
 
 ### "WhatsApp messages aren't working"
 → Go to:
